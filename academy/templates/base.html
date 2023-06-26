@@ -25,13 +25,8 @@
           {% block navbar %}
           {% endblock navbar %}
           {% if user.is_authenticated %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Hola míster, {{request.user.username}}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesion</a></li>
-              </ul>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
             </li>
           {% else %}
             <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Iniciar Sesión</a>

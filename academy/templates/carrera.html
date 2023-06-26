@@ -6,7 +6,7 @@
 {% endblock head %}
 
 {% block navbar %}
-<li class="nav-item">
+<li class="nav-item d-none d-lg-block">
   <a class="nav-link" href="{% url 'listar_jugadores' carrera.id %}"><span class="material-symbols-rounded">conditions</span></a>
 </li>
 {% endblock navbar %}
@@ -29,6 +29,7 @@
                 <button id="agregarJugadorBtn" type="button" class="btn btn-primary ms-auto" data-toggle="modal" data-target="#agregarJugadorModal"><span class="material-symbols-rounded">settings_accessibility</span></button>
                 <button id="cambiarEquipoBtn" type="button" class="btn btn-danger ms-2" data-toggle="modal" data-target="#cambiarEquipoModal"><span class="material-symbols-rounded">magic_exchange</span></button>
                 <button id="estadisticasBtn" type="button" class="btn btn-secondary ms-2 d-lg-none" data-toggle="modal" data-target="#estadisticasModal"><span class="material-symbols-rounded">query_stats</span></button>
+                <a href="{% url 'listar_jugadores' carrera.id %}" class="btn btn-dark ms-2 d-lg-none"><span class="material-symbols-rounded">conditions</span></a>
                 <button id="pasarTemporadaBtn" type="button" class="btn btn-success ms-2" data-toggle="modal" data-target="#pasarTemporadaModal"><span class="material-symbols-rounded">start</span></button>
               </div>
             </div>

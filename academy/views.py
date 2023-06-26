@@ -8,6 +8,8 @@ from .models import Carrera, TemporadaFinalizada, Jugador, Equipo, TemporadaJuga
 from .forms import JugadorForm, TemporadaFinalizadaForm, CarreraForm
 from .equipos import rellenar_equipos, rellenar_posiciones, rellenar_paises
 from django.db.models import F, ExpressionWrapper, IntegerField
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 class IndexView(View):
     def get(self, request):
@@ -43,7 +45,7 @@ class CrearCuentaView(View):
             return redirect('login')
         return render(request, 'crear_cuenta.html', {'form': form})
 
-class CrearCarreraView(CreateView):
+class CrearCarreraView(LoginRequiredMixin,CreateView):
     model = Carrera
     form_class = CarreraForm
     template_name = 'crear_carrera.html'
@@ -61,7 +63,14 @@ class CrearCarreraView(CreateView):
         
         return redirect('index')
 
-class CarreraView(View):
+class CarreraView(LoginRequiredMixin,View):
+    
+    def dispatch(self, request, *args, **kwargs):
+        carrera = Carrera.objects.get(pk=kwargs['carrera_id'])
+        if request.user == carrera.usuario:
+            return redirect('index')
+        else:
+            return super(CarreraView,self).dispatch(request, *args, **kwargs)
     
     def get_ultimo_equipo(self,carrera):
         equipo_actual = TemporadaEquipo.objects.filter(temporada__carrera=carrera).last().equipo
@@ -110,7 +119,7 @@ class CarreraView(View):
                                                     'equipos':Equipo.objects.all(), 'equipos_carrera': equipos ,'equipo_final': self.get_ultimo_equipo(carrera),
                                                     'ligas': ligas, 'copas': copas, 'continentales':continentales, 'total': total})
         
-class AgregarJugadorOjeadoView(View):
+class AgregarJugadorOjeadoView(LoginRequiredMixin,View):
     def post(self, request, carrera_id):
         if request.user.is_authenticated:
             carrera = Carrera.objects.get(id=carrera_id)
@@ -134,7 +143,7 @@ class AgregarJugadorOjeadoView(View):
         else:
             return redirect('index')
 
-class PasarTemporadaView(View):
+class PasarTemporadaView(LoginRequiredMixin,View):
     
     def post(self, request, carrera_id):
         carrera = Carrera.objects.get(id=carrera_id)
@@ -162,7 +171,7 @@ class PasarTemporadaView(View):
             
         return redirect('carrera', carrera_id=carrera.id)
     
-class CambiarEquipo(View):
+class CambiarEquipo(LoginRequiredMixin,View):
     def post(self, request, carrera_id):
         carrera = Carrera.objects.get(id=carrera_id)
         
@@ -171,7 +180,7 @@ class CambiarEquipo(View):
             
         return redirect('carrera', carrera_id=carrera.id)
 
-class JugadorView(View):
+class JugadorView(LoginRequiredMixin,View):
     def get(self, request, jugador_id):
         if request.user.is_authenticated:
             jugador = Jugador.objects.filter(id=jugador_id)
@@ -183,7 +192,7 @@ class JugadorView(View):
         else:
             return redirect('index')
 
-class TraspasarJugador(View):
+class TraspasarJugador(LoginRequiredMixin,View):
     def post(self, request, jugador_id, carrera_id):
         jugador = Jugador.objects.get(pk=jugador_id)
         equipo = Equipo.objects.get(pk=request.POST['id_equipo'])
@@ -194,12 +203,20 @@ class TraspasarJugador(View):
         
         return redirect('jugador', jugador_id=jugador_id)
 
+@login_required
 def cerrar_sesion(request):
     logout(request)
     return redirect('index')
 
-class ListarJugadores(TemplateView):
+class ListarJugadores(LoginRequiredMixin,TemplateView):
     template_name = 'lista_jugadores.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        carrera = Carrera.objects.get(pk=kwargs['carrera_id'])
+        if request.user == carrera.usuario:
+            return redirect('index')
+        else:
+            return super(ListarJugadores,self).dispatch(request, *args, **kwargs)
     
     def get(self, request, carrera_id):
         temporada = Temporada.objects.filter(carrera=Carrera.objects.get(pk=carrera_id)).last()
@@ -231,8 +248,10 @@ class ListarJugadores(TemplateView):
             'carrera': Carrera.objects.get(pk=carrera_id),
             'nacionalidad': Nacionalidad.objects.all()
         })
-        
+    
+@login_required    
 def eliminar_carrera(request, carrera_id):
-    carrera = Carrera.objects.filter(pk=carrera_id)
-    carrera.delete()
+    carrera = Carrera.objects.get(pk=carrera_id)
+    if carrera.usuario == request.user:
+        carrera.delete()
     return redirect('index')
