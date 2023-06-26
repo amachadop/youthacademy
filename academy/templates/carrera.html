@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Temporada {{temporada_actual.nombre}} - {{ carrera.nombre }}</title>
+{% load static %}
+{% endblock head %}
+
+{% block navbar %}
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'listar_jugadores' carrera.id %}"><span class="material-symbols-rounded">conditions</span></a>
+</li>
+{% endblock navbar %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-9">
+      <div class="container-fluid">
+        <div class="card mt-4 border-0 shadow p-3 p-md-4 mb-4">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="d-flex align-items-center">
+                <img src="{% static 'img/escudo.png' %}" alt="" width="40" height="40">
+                <span class="fw-bold fs-4 ms-3 text-center">{{equipo_actual.nombre}} (Temporada {{temporada_actual.nombre}})</span>
+              </div>
+            </div>
+            <div class="col-4 mt-3 mt-md-0">
+              <div class="d-flex align-items-center">
+                <button id="agregarJugadorBtn" type="button" class="btn btn-primary ms-auto" data-toggle="modal" data-target="#agregarJugadorModal"><span class="material-symbols-rounded">settings_accessibility</span></button>
+                <button id="cambiarEquipoBtn" type="button" class="btn btn-danger ms-2" data-toggle="modal" data-target="#cambiarEquipoModal"><span class="material-symbols-rounded">magic_exchange</span></button>
+                <button id="estadisticasBtn" type="button" class="btn btn-secondary ms-2 d-lg-none" data-toggle="modal" data-target="#estadisticasModal"><span class="material-symbols-rounded">query_stats</span></button>
+                <button id="pasarTemporadaBtn" type="button" class="btn btn-success ms-2" data-toggle="modal" data-target="#pasarTemporadaModal"><span class="material-symbols-rounded">start</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+        <div class="card border-0 shadow p-3 p-md-4 mb-5">
+          <h3 class="mb-4">Jugadores Ojeados:</h3>
+          <div class="list-group list-group-flush">
+            {% for jugador in jugadores_ojeados %}
+                <a href="{% url 'jugador' jugador.jugador.id %}" class="list-group-item list-group-item-action">
+                    <div class="d-lg-flex align-items-center">
+                      {% load static %}
+                      <img src="{% static 'img/avatar.png' %}" alt="" width="40" height="40">
+                      <span class="fw-bolder ms-4 fs-4">{% for p in jugador.jugador.posiciones.all %} <span class="me-1">{{p}}</span> {% endfor %}</span>
+                      <span class="fw-semibold ms-2 text-secondary fs-5">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>
+                      <span class="fw-semibold ms-2 text-secondary fs-5">({{jugador.edad}} años)</span>
+                      <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="30" height="20" class="ms-2 rounded-1">
+                      <span class="fw-semibold ms-3 me-1">Global: </span> <span class="badge
+                          {% if jugador.jugador.media_descubrimiento >= 90  %} 
+                          bg-primary
+                          {% elif jugador.jugador.media_descubrimiento < 90 and jugador.jugador.media_descubrimiento >= 80 %} 
+                          bg-success
+                          {% elif jugador.jugador.media_descubrimiento < 80 and jugador.jugador.media_descubrimiento >= 70  %}
+                          bg-info
+                          {% elif jugador.jugador.media_descubrimiento < 70 and jugador.jugador.media_descubrimiento >= 60  %}
+                          bg-warning
+                          {% elif jugador.jugador.media_descubrimiento <= 59  %}
+                          bg-danger
+                          {% endif %} text-wrap p-2">{{ jugador.jugador.media_descubrimiento }}</span>
+                    </div>
+                  </a>
+            {%empty%}
+            <h5 class="text-center fw-light">Aun no se han descubierto jugadores en este equipo</h5>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>    
+    </div>
+  
+    <div class="col-3 d-none d-lg-block">
+      <div class="container-fluid">
+
+        <div class="container-fluid">
+            <div class="card mt-4 border-0 shadow p-3">
+              {% include 'contenedor_estadisticas.html' %}
+            </div>
+        </div>
+    
+      </div>
+    </div>
+  </div> 
+</div> 
+
+<!-- Modal Cambiar Equipo -->
+<div class="modal fade" id="cambiarEquipoModal" tabindex="-1" role="dialog" aria-labelledby="cambiarEquipoModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content bg-light">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-secondary" id="cambiarEquipoModalLabel">Elegir Club</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{% url 'cambiar_equipo' carrera.id %}">
+          {% csrf_token %}
+          <select name="id_equipo" id="slect"  class="form-select mt-3 mb-3" required>
+            <option value="">Equipo destino</option>
+            {% for e in equipos %}
+                <option value="{{e.id}}">{{e.nombre}} | {{e.liga}}</option>
+            {% endfor %}
+        </select>
+
+          <div class="d-flex">
+            <button type="submit" class="btn btn-light ms-auto fw-semibold" style="color: #14539a;">Ir al nuevo club</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Estadisticas -->
+<div class="modal fade" id="estadisticasModal" tabindex="-1" role="dialog" aria-labelledby="estadisticasModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content bg-light">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-secondary" id="estadisticasModalLabel"><span class="text-capitalize">{{carrera.nombre}}</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% include 'contenedor_estadisticas.html' %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agregar Jugador Ojeado -->
+<div class="modal fade" id="agregarJugadorModal" tabindex="-1" role="dialog" aria-labelledby="agregarJugadorModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content bg-light">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-secondary" id="agregarJugadorModalLabel">Nuevo Jugador Ojeado</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{% url 'agregar_jugador_ojeado' carrera.id %}">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <div class="d-flex">
+            <button type="submit" class="btn btn-light ms-auto fw-semibold" style="color: #14539a;">Agregar Jugador</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Pasar Temporada -->
+<div class="modal fade" id="pasarTemporadaModal" tabindex="-1" role="dialog" aria-labelledby="pasarTemporadaModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content bg-light">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-secondary" id="pasarTemporadaModalLabel">Pasar Temporada</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{% url 'pasar_temporada' carrera.id %}">
+          {% csrf_token %}
+          {{tform.as_p}}
+
+            <select name="id_equipo" id="slect"  class="form-select mt-3 mb-3" required>
+                <option value="">Equipo de la Proxima Temporada</option>
+                {% for e in equipos %}
+                    <option value="{{e.id}}" {% if e.nombre == equipo_actual.nombre  %}selected{% endif %}>{{e.nombre}} | {{e.liga}}</option>
+                {% endfor %}
+            </select>
+
+          <div class="d-flex">
+            <button type="submit" class="btn btn-light ms-auto fw-semibold" style="color: #14539a;">Aceptar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script>
+    $(document).ready(function() {
+        // Mostrar modal Pasar Temporada al hacer clic en el botón
+        $('#pasarTemporadaBtn').click(function() {
+          $('#pasarTemporadaModal').modal('show');
+        });
+
+        $('#cambiarEquipoBtn').click(function() {
+          $('#cambiarEquipoModal').modal('show');
+        });
+
+        // Mostrar modal Estadisticas al hacer clic en el botón
+        $('#estadisticasBtn').click(function() {
+          $('#estadisticasModal').modal('show');
+        });
+    
+        // Mostrar modal Agregar Jugador Ojeado al hacer clic en el botón
+        $('#agregarJugadorBtn').click(function() {
+          $('#agregarJugadorModal').modal('show');
+          $('.js-example-basic-multiple').select2();
+        });
+
+        $('#temporadaSelect').on('change', function() {
+            // Obtener el formulario
+            var form = $('#formulario');
+            form.submit();
+          });
+      });
+</script>
+{% endblock js %}

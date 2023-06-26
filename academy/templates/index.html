@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Welcome to Youth Academy</title>
+{% endblock head %}
+
+{% block content %}
+  {% if user.is_authenticated %}
+    <div class="container">
+      <div class="d-flex justify-content-center mt-3 mb-4">
+        <button id="carreraBtn" type="button" class="btn btn-light text-center" data-toggle="modal" data-target="#crearCarreraModal">
+          <div class="d-flex justify-content-center p-2">
+            <span class="material-symbols-rounded" style="color: #14539a;">create_new_folder</span>
+            <span class="fw-semibold ms-2" style="color: #14539a;">Crear Nueva Carrera</span>
+          </div>
+        </button>
+      </div>
+    
+      <div class="p-md-5 pt-md-0">
+        {% for carrera in carreras %}
+              <div class="card bg-light border-0 mb-4 p-3">
+                <div class="d-flex align-items-center">
+                  <h3 class="fw-semibold text-capitalize">{{ carrera.nombre }}</h3>
+                  <a href="{% url 'carrera' carrera.id %}" class="btn btn-primary ms-auto"><span class="material-symbols-rounded">page_info</span></a>
+                  <button onclick="eliminar({{carrera.id}});" class="btn btn-danger ms-2"><span class="material-symbols-rounded">delete</span></button>
+                </div>
+              </div>
+
+              <!--Modal para confirmar eliminar carrera-->
+              <div class="modal" tabindex="-1" role="dialog" aria-hidden="true" id="eliminarModal{{carrera.id}}">
+                <div class="modal-dialog">
+                  <div class="modal-content bg-light">
+                    <div class="modal-header border-0">
+                      <h5 class="modal-title text-secondary" id="title">Eliminar carrera</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <p>¿Seguro que desea eliminar esta carrera?</p>
+                    </div>
+                    <div class="d-flex justify-content-center p-3 rounded-bottom">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <a type="button" class="btn btn-danger ms-2" href="{% url 'eliminar_carrera' carrera.id %}">Eliminar</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        {% endfor %}
+      </div>
+    
+      <!-- Modal para crear una nueva carrera -->
+      <div class="modal fade" id="crearCarreraModal" tabindex="-1" role="dialog" aria-labelledby="crearCarreraModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+          <div class="modal-content bg-light">
+              <div class="modal-header border-0">
+              <h5 class="modal-title text-secondary" id="crearCarreraModalLabel">Crear Nueva Carrera</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+              <!-- Formulario de creación de carrera -->
+              <form method="post" action="{% url 'crear_carrera' %}">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                      {{ form.nombre }}
+                      {{ form.manager }}
+                      <select name="id_equipo" class="form-select mt-3" required>
+                          <option value="">Seleccionar equipo</option>
+                          {% for e in equipos %}
+                              <option value="{{e.id}}">{{e.nombre}} | {{e.liga}}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+                  <div class="d-flex">
+                      <button type="submit" class="btn btn-light ms-auto fw-semibold" style="color: #14539a;">Crear Carrera</button>
+                  </div>
+              </form>
+              </div>
+          </div>
+          </div>
+      </div>
+
+    </div>
+  {% else %}
+    {% load static %}
+    <div class="container-fluid w-100 min-vh-100 back d-none d-lg-block" style="background-size: cover; background-position: center; background-image: url({% static 'img/background.jpg' %});"></div>
+    <div class="container-fluid w-100 min-vh-100 back d-lg-none" style="background-size: cover; background-position: center; background-image: url({% static 'img/vertical.png' %});"></div>
+    {% endif %}
+
+{% endblock content %}
+
+{% block js %}
+<script>
+
+  function eliminar(id){
+    $('#eliminarModal'+id).modal('show');
+  };
+    
+  $('#carreraBtn').click(function() {
+      $('#id_nombre').val('');
+      $('#crearCarreraModal').modal('show');
+  });
+
+  
+</script>
+{% endblock js %}

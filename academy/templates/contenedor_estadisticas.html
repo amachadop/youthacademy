@@ -1,0 +1,36 @@
+    <div class="d-flex">
+        <h6>Manager:</h6>
+        <h6 class="ms-auto">{{carrera.manager}}</h6>
+    </div>
+
+    <div class="d-flex mt-3">
+        <h6>Temporadas jugadas:</h6>
+        <h6 class="ms-auto">{{total}}</h6>
+    </div>
+
+    <div class="d-flex mt-3">
+        <h6>Titulos de Liga:</h6>
+        <h6 class="ms-auto">{{ligas}}</h6>
+    </div>
+    <div class="d-flex">
+        <h6>Titulos de Copa:</h6>
+        <h6 class="ms-auto">{{copas}}</h6>
+    </div>
+    <div class="d-flex">
+        <h6>Titulos Continentales:</h6>
+        <h6 class="ms-auto">{{continentales}}</h6>
+    </div>
+
+    <h6 class="mt-3 mb-3">Historial de equipos:</h6>
+
+    <div class="list-group list-group-flush">
+        {% for e in equipos_carrera %}
+            <div class="list-group-item list-group-item-light">
+                <div class="d-flex align-items-center">
+                    {% load static %}
+                    <img src="{% static 'img/escudo.png' %}" alt="" width="25" height="25">
+                    <span class="fw-semibold ms-2">{{e.nombre}}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>

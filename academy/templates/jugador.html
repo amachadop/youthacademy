@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Jugador {{ jugador.nombre }} - Youth Academy</title>
+{% endblock head %}
+
+
+{% block content %}
+<div class="container ">
+
+  <div class="card border-0 shadow mb-5 mt-5">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-lg-2">
+            {% load static %}
+            <img src="{% static 'img/avatar.png' %}" alt="My image" style="width: 100%;" class="mb-3 mb-xl-0">
+        </div>
+        <div class="col-10">
+            <div class="d-flex">
+              <h3 class="fw-bolder me-2 text-dark">{% for p in jugador.posiciones.all %} <span class="me-1">{{p}}</span> {% endfor %}</h3>
+              <h3 class="fw-semibold text-uppercase text-secondary">{{ jugador.nombre }} {{ jugador.apellido }} ({{jugador.edad}} años)</h3>
+              <button id="traspasarJugadorBtn" type="button" class="btn btn-success ms-auto" data-toggle="modal" data-target="#traspasarJugadorModal"><span class="material-symbols-rounded">transfer_within_a_station</span></button>
+            </div>
+            <p class="card-text mt-3"><span class="fw-semibold">Nacionalidad</span> {{ jugador.nacionalidad.pais }}</p>
+            <p class="card-text"><span class="fw-semibold">Año de Nacimiento</span> {{ jugador.anio_nacimiento }}</p>
+            <p class="card-text"><span class="fw-semibold">Edad Debut</span> {{ jugador.edad_descubrimiento }}</p>
+            <p class="card-text"><span class="fw-semibold">Global Inicial</span> <span class="badge 
+              {% if jugador.media_descubrimiento >= 90  %} 
+              bg-primary
+              {% elif jugador.media_descubrimiento < 90 and jugador.media_descubrimiento >= 80 %} 
+              bg-success
+              {% elif jugador.media_descubrimiento < 80 and jugador.media_descubrimiento >= 70  %}
+              bg-info
+              {% elif jugador.media_descubrimiento < 70 and jugador.media_descubrimiento >= 60  %}
+              bg-warning
+              {% elif jugador.media_descubrimiento <= 59  %}
+              bg-danger
+              {% endif %} text-wrap p-3">{{ jugador.media_descubrimiento }}</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-md-5 pt-md-0">
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="w-25">Temporada</th>
+          <th>Equipo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for equipo_temporada in equipos_temporadas %}
+        <tr>
+          <td class="w-25">{{ equipo_temporada.temporada.nombre }}</td>
+          <td>{{ equipo_temporada.equipo.nombre }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Traspasar Jugador -->
+<div class="modal fade" id="traspasarJugadorModal" tabindex="-1" role="dialog" aria-labelledby="traspasarJugadorModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content bg-light">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-secondary" id="traspasarJugadorModalLabel">Traspasar Jugador</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{% url 'traspasar_jugador_ojeado' jugador_id=jugador.id carrera_id=carrera.id %}">
+          {% csrf_token %}
+          <select name="id_equipo" id="slect"  class="form-select mt-3 mb-3" required>
+            <option value="">Equipo destino</option>
+            {% for e in equipos %}
+                <option value="{{e.id}}">{{e.nombre}} | {{e.liga}}</option>
+            {% endfor %}
+        </select>
+
+          <div class="d-flex">
+            <button type="submit" class="btn btn-light ms-auto fw-semibold" style="color: #14539a;">Traspasar Jugador</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  $(document).ready(function() {
+      
+      // Mostrar modal Traspasar Jugador al hacer clic en el botón
+      $('#traspasarJugadorBtn').click(function() {
+        $('#traspasarJugadorModal').modal('show');
+      });
+
+    });
+</script>
+{% endblock js %}
