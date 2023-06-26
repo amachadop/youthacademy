@@ -67,7 +67,7 @@ class CarreraView(LoginRequiredMixin,View):
     
     def dispatch(self, request, *args, **kwargs):
         carrera = Carrera.objects.get(pk=kwargs['carrera_id'])
-        if request.user == carrera.usuario:
+        if request.user != carrera.usuario:
             return redirect('index')
         else:
             return super(CarreraView,self).dispatch(request, *args, **kwargs)
@@ -213,7 +213,7 @@ class ListarJugadores(LoginRequiredMixin,TemplateView):
     
     def dispatch(self, request, *args, **kwargs):
         carrera = Carrera.objects.get(pk=kwargs['carrera_id'])
-        if request.user == carrera.usuario:
+        if request.user != carrera.usuario:
             return redirect('index')
         else:
             return super(ListarJugadores,self).dispatch(request, *args, **kwargs)
