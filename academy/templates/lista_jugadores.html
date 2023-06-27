@@ -36,23 +36,25 @@
                     {% for jugador in  jugadores %}           
                         <a href="{% url 'jugador' jugador.jugador.id %}" class="list-group-item list-group-item-action">
                             <div class="d-lg-flex align-items-center">
-                            <img src="{% static 'img/avatar.png' %}" alt="" width="40" height="40">
-                            <span class="fw-bolder ms-4 fs-4">{% for p in jugador.jugador.posiciones.all %} <span class="me-1">{{p}}</span> {% endfor %}</span>
-                            <span class="fw-semibold ms-2 text-secondary fs-5">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>
-                            <span class="fw-semibold ms-2 text-secondary fs-5">({{jugador.edad}} años)</span>
-                            <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="30" height="20" class="ms-2 rounded-1">
-                            <span class="fw-semibold ms-3 me-1">Global: </span> <span class="badge
-                                {% if jugador.jugador.media_descubrimiento >= 90  %} 
-                                bg-primary
-                                {% elif jugador.jugador.media_descubrimiento < 90 and jugador.jugador.media_descubrimiento >= 80 %} 
-                                bg-success
-                                {% elif jugador.jugador.media_descubrimiento < 80 and jugador.jugador.media_descubrimiento >= 70  %}
-                                bg-info
-                                {% elif jugador.jugador.media_descubrimiento < 70 and jugador.jugador.media_descubrimiento >= 60  %}
-                                bg-warning
-                                {% elif jugador.jugador.media_descubrimiento <= 59  %}
-                                bg-danger
-                                {% endif %} text-wrap p-2">{{ jugador.jugador.media_descubrimiento }}</span>
+                                <img src="{% static 'img/avatar.png' %}" alt="" width="25" height="25">
+                                <span class="fw-bolder ms-2 text-dark fs-5">{{jugador.posicion}}</span>
+                                <span class="fw-semibold ms-2 text-secondary fs-5">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>
+                                <span class="fw-semibold ms-2 text-secondary fs-5">({{jugador.edad}} años)</span>
+                                <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="30" height="20" class="ms-2 rounded-1">
+                                <span class="fw-semibold ms-2 text-dark">Valor de Mercado: <span class="fw-light">{{jugador.valor}}€</span></span>
+                                <span class="fw-semibold ms-2 text-dark">Equipo Actual: <span class="fw-light">{{jugador.equipo.nombre}}</span></span>
+                                <span class="fw-semibold ms-2 me-1">Global: </span> <span class="badge
+                                    {% if jugador.media >= 90  %} 
+                                    bg-primary
+                                    {% elif jugador.media < 90 and jugador.media >= 80 %} 
+                                    bg-success
+                                    {% elif jugador.media < 80 and jugador.media >= 70  %}
+                                    bg-info
+                                    {% elif jugador.media < 70 and jugador.media >= 60  %}
+                                    bg-warning
+                                    {% elif jugador.media <= 59  %}
+                                    bg-danger
+                                    {% endif %} text-wrap p-2">{{ jugador.media }}</span>
                             </div>
                         </a>   
                     {% endfor %}

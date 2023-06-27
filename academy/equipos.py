@@ -1,4 +1,4 @@
-from .models import Equipo, Posicion, Nacionalidad
+from .models import Equipo, Nacionalidad
 
 equipos_fifa18 = [
     {'nombre': 'Real Madrid', 'liga': 'La Liga'},
@@ -737,31 +737,3 @@ def rellenar_paises():
             n = Nacionalidad(pais=pais['nombre'], bandera=pais['bandera'])
             n.save()
             
-def rellenar_posiciones():
-    if not Posicion.objects.all().exists():
-        p = Posicion(nombre='POR')
-        p.save()
-        p = Posicion(nombre='LD')
-        p.save()
-        p = Posicion(nombre='LI')
-        p.save()
-        p = Posicion(nombre='DFC')
-        p.save()
-        p = Posicion(nombre='MCD')
-        p.save()
-        p = Posicion(nombre='MC')
-        p.save()
-        p = Posicion(nombre='MCO')
-        p.save()
-        p = Posicion(nombre='MI')
-        p.save()
-        p = Posicion(nombre='MD')
-        p.save()
-        p = Posicion(nombre='EI')
-        p.save()
-        p = Posicion(nombre='ED')
-        p.save()
-        p = Posicion(nombre='DC')
-        p.save()
-        p = Posicion(nombre='SD')
-        p.save()

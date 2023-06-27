@@ -4,17 +4,16 @@ from django.shortcuts import render, redirect
 from django.views.generic import View, CreateView, ListView, TemplateView, DeleteView, UpdateView, DetailView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from .models import Carrera, TemporadaFinalizada, Jugador, Equipo, TemporadaJugador , Temporada, TemporadaEquipo, Nacionalidad
+from .models import Carrera, TemporadaFinalizada, Jugador, Equipo, TemporadaJugador , Temporada, TemporadaEquipo, Nacionalidad, JugadorPosicion
 from .forms import JugadorForm, TemporadaFinalizadaForm, CarreraForm
-from .equipos import rellenar_equipos, rellenar_posiciones, rellenar_paises
-from django.db.models import F, ExpressionWrapper, IntegerField
+from .equipos import rellenar_equipos, rellenar_paises
+from django.db.models import F, ExpressionWrapper, IntegerField, OuterRef, Subquery
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
 class IndexView(View):
     def get(self, request):
         rellenar_equipos()
-        rellenar_posiciones()
         rellenar_paises()
         carreras = Carrera.objects.filter(usuario=request.user) if request.user.is_authenticated else []
         return render(request, 'index.html', {'carreras': carreras, 'form':CarreraForm, 'equipos':Equipo.objects.all()})
@@ -109,15 +108,24 @@ class CarreraView(LoginRequiredMixin,View):
                 continentales+=1
             if tf.progreso_copa == 'Campeon':
                 copas+=1
-        
+                
         temporada_actual = TemporadaEquipo.objects.filter(temporada__carrera=carrera).last()
         equipo_actual = TemporadaEquipo.objects.filter(temporada=temporada_actual.temporada).last().equipo
         anio = int('20'+temporada_actual.temporada.nombre[0:2])
-        jugadores_ojeados = TemporadaJugador.objects.filter(equipo=equipo_actual, temporada=temporada_actual.temporada).annotate(edad=ExpressionWrapper(anio - F('jugador__anio_nacimiento'),output_field=IntegerField()))
+        
+        subquery = JugadorPosicion.objects.filter(jugador=OuterRef('jugador')).order_by('id')
+        
+        all_jugadores = TemporadaJugador.objects.filter(temporada=temporada_actual.temporada).annotate(posicion=Subquery(subquery.values('posicion')[:1]))
+        for i in all_jugadores:
+            if i != all_jugadores.filter(jugador=i.jugador).last():
+                all_jugadores = all_jugadores.exclude(jugador=i.jugador, equipo=i.equipo)
+        
+        jugadores_ojeados = TemporadaJugador.objects.filter(equipo=equipo_actual, temporada=temporada_actual.temporada).annotate(edad=ExpressionWrapper(anio - F('jugador__anio_nacimiento'),output_field=IntegerField())).annotate(posicion=Subquery(subquery.values('posicion')[:1]))
         return render(request, 'carrera.html', {'carrera': carrera, 'temporada_actual': temporada_actual.temporada, 'jugadores_ojeados': jugadores_ojeados,
                                                     'form':JugadorForm, 'tform': TemporadaFinalizadaForm, 'equipo_actual': equipo_actual,
                                                     'equipos':Equipo.objects.all(), 'equipos_carrera': equipos ,'equipo_final': self.get_ultimo_equipo(carrera),
-                                                    'ligas': ligas, 'copas': copas, 'continentales':continentales, 'total': total})
+                                                    'ligas': ligas, 'copas': copas, 'continentales':continentales, 'total': total,
+                                                    'all_jugadores': all_jugadores})
         
 class AgregarJugadorOjeadoView(LoginRequiredMixin,View):
     def post(self, request, carrera_id):
@@ -131,12 +139,12 @@ class AgregarJugadorOjeadoView(LoginRequiredMixin,View):
                 jugador.anio_nacimiento = x - int(jugador.edad_descubrimiento)
                 jugador.save()
                 
-                p = jugador.posiciones
                 for pos in request.POST.getlist('posiciones'):
-                    p.add(pos)
+                    p = JugadorPosicion(jugador=jugador, posicion=pos)
+                    p.save()
                     
                 equipo = TemporadaEquipo.objects.filter(temporada=temporada_actual).last().equipo
-                t = TemporadaJugador(temporada=temporada_actual, equipo=equipo, jugador=jugador)
+                t = TemporadaJugador(temporada=temporada_actual, equipo=equipo, jugador=jugador, valor=jugador.valor_inicial, media=jugador.media_descubrimiento)
                 t.save()
         
             return redirect('carrera', carrera_id=carrera_id)    
@@ -165,8 +173,10 @@ class PasarTemporadaView(LoginRequiredMixin,View):
             for tj in temporada_jugador:
                 jugador = tj.jugador
                 equipo = tj.equipo
+                nValor = 'valorJugador'+str(jugador.id)
+                nMedia = 'mediaJugador'+str(jugador.id)
                 if tj == TemporadaJugador.objects.filter(temporada=tj.temporada,jugador=jugador).last():
-                    nt = TemporadaJugador(temporada=nueva_temporada,jugador=jugador,equipo=equipo)
+                    nt = TemporadaJugador(temporada=nueva_temporada,jugador=jugador,equipo=equipo,valor=request.POST[nValor],media=request.POST[nMedia])
                     nt.save()
             
         return redirect('carrera', carrera_id=carrera.id)
@@ -188,7 +198,7 @@ class JugadorView(LoginRequiredMixin,View):
             anio = int('20'+equipos_temporadas.last().temporada.nombre[0:2])
             jugador = jugador.annotate(edad=ExpressionWrapper(anio - F('anio_nacimiento'),output_field=IntegerField())).last()
             return render(request, 'jugador.html', {'jugador': jugador, 'equipos_temporadas': equipos_temporadas, 'equipos':Equipo.objects.all(),
-                                                    'carrera':equipos_temporadas.first().temporada.carrera})
+                                                    'carrera':equipos_temporadas.first().temporada.carrera, 'posiciones': JugadorPosicion.objects.filter(jugador=jugador)})
         else:
             return redirect('index')
 
@@ -198,7 +208,7 @@ class TraspasarJugador(LoginRequiredMixin,View):
         equipo = Equipo.objects.get(pk=request.POST['id_equipo'])
         temporada = Temporada.objects.filter(carrera=Carrera.objects.get(pk=carrera_id)).last()
         
-        te = TemporadaJugador(jugador=jugador, equipo=equipo, temporada=temporada)
+        te = TemporadaJugador(jugador=jugador, equipo=equipo, temporada=temporada, valor = request.POST['valor'], media = request.POST['media'])
         te.save()
         
         return redirect('jugador', jugador_id=jugador_id)
@@ -221,7 +231,9 @@ class ListarJugadores(LoginRequiredMixin,TemplateView):
     def get(self, request, carrera_id):
         temporada = Temporada.objects.filter(carrera=Carrera.objects.get(pk=carrera_id)).last()
         anio = int('20'+temporada.nombre[0:2])
-        tj = TemporadaJugador.objects.filter(temporada=temporada).annotate(edad=ExpressionWrapper(anio - F('jugador__anio_nacimiento'),output_field=IntegerField()))
+        subquery = JugadorPosicion.objects.filter(jugador=OuterRef('jugador')).order_by('id')
+        
+        tj = TemporadaJugador.objects.filter(temporada=temporada).annotate(edad=ExpressionWrapper(anio - F('jugador__anio_nacimiento'),output_field=IntegerField())).annotate(posicion=Subquery(subquery.values('posicion')[:1]))
         for i in tj:
             if i != tj.filter(jugador=i.jugador).last():
                 tj = tj.exclude(jugador=i.jugador, equipo=i.equipo)
@@ -235,9 +247,10 @@ class ListarJugadores(LoginRequiredMixin,TemplateView):
     def post(self, request, carrera_id):
         temporada = Temporada.objects.filter(carrera=Carrera.objects.get(pk=carrera_id)).last()
         anio = int('20'+temporada.nombre[0:2])
-        tj = TemporadaJugador.objects.filter(temporada=temporada, jugador__nombre__contains=request.POST['keywords']).annotate(edad=ExpressionWrapper(anio - F('jugador__anio_nacimiento'),output_field=IntegerField()))
+        subquery = JugadorPosicion.objects.filter(jugador=OuterRef('jugador')).order_by('id')
+        tj = TemporadaJugador.objects.filter(temporada=temporada, jugador__nombre__contains=request.POST['keywords']).annotate(edad=ExpressionWrapper(anio - F('jugador__anio_nacimiento'),output_field=IntegerField())).annotate(posicion=Subquery(subquery.values('posicion')[:1]))
         if len(list(tj.values())) == 0:
-            tj = TemporadaJugador.objects.filter(temporada=temporada, jugador__apellido__contains=request.POST['keywords']).annotate(edad=ExpressionWrapper(anio - F('jugador__anio_nacimiento'),output_field=IntegerField()))
+            tj = TemporadaJugador.objects.filter(temporada=temporada, jugador__apellido__contains=request.POST['keywords']).annotate(edad=ExpressionWrapper(anio - F('jugador__anio_nacimiento'),output_field=IntegerField())).annotate(posicion=Subquery(subquery.values('posicion')[:1]))
         for i in tj:
             if i != tj.filter(jugador=i.jugador).last():
                 tj = tj.exclude(jugador=i.jugador, equipo=i.equipo)

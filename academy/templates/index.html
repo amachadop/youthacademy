@@ -81,9 +81,9 @@
     </div>
   {% else %}
     {% load static %}
-    <div class="container-fluid w-100 min-vh-100 back d-none d-lg-block" style="background-size: cover; background-position: center; background-image: url({% static 'img/background.jpg' %});"></div>
-    <div class="container-fluid w-100 min-vh-100 back d-lg-none" style="background-size: cover; background-position: center; background-image: url({% static 'img/vertical.png' %});"></div>
-    {% endif %}
+    <div class="container-fluid w-100 min-vh-100 d-none d-lg-block" style="background-size: cover; background-position: center; background-image: url({% static 'img/background.jpg' %});"></div>
+    <div class="container-fluid w-100 min-vh-100 d-lg-none" style="background-size: cover; background-position: center; background-image: url({% static 'img/vertical.jpg' %});"></div>
+  {% endif %}
 
 {% endblock content %}
 

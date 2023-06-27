@@ -25,14 +25,14 @@ class TemporadaForm(forms.ModelForm):
 class JugadorForm(forms.ModelForm):
     class Meta:
         model = Jugador
-        fields = ['nombre', 'apellido', 'nacionalidad', 'posiciones', 'edad_descubrimiento', 'media_descubrimiento']
+        fields = ['nombre', 'apellido', 'nacionalidad', 'edad_descubrimiento', 'media_descubrimiento','valor_inicial']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'apellido': forms.TextInput(attrs={'class': 'form-control'}),
             'nacionalidad': forms.Select(attrs={'class': 'form-select'}),
-            'posiciones': forms.SelectMultiple(attrs={'class': 'js-example-basic-multiple', 'style':'width:200px;' , 'multiple':'mulptiple', 'name':'posiciones[]'}),
             'edad_descubrimiento': forms.NumberInput(attrs={'class': 'form-control'}),
             'media_descubrimiento': forms.NumberInput(attrs={'class': 'form-control'}),
+            'valor_inicial': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 class TemporadaFinalizadaForm(forms.ModelForm):

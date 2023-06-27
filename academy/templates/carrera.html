@@ -43,23 +43,24 @@
                 <a href="{% url 'jugador' jugador.jugador.id %}" class="list-group-item list-group-item-action">
                     <div class="d-lg-flex align-items-center">
                       {% load static %}
-                      <img src="{% static 'img/avatar.png' %}" alt="" width="40" height="40">
-                      <span class="fw-bolder ms-4 fs-4">{% for p in jugador.jugador.posiciones.all %} <span class="me-1">{{p}}</span> {% endfor %}</span>
+                      <img src="{% static 'img/avatar.png' %}" alt="" width="25" height="25">
+                      <span class="fw-bolder ms-2 text-dark fs-5">{{jugador.posicion}}</span>
                       <span class="fw-semibold ms-2 text-secondary fs-5">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>
                       <span class="fw-semibold ms-2 text-secondary fs-5">({{jugador.edad}} años)</span>
                       <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="30" height="20" class="ms-2 rounded-1">
-                      <span class="fw-semibold ms-3 me-1">Global: </span> <span class="badge
-                          {% if jugador.jugador.media_descubrimiento >= 90  %} 
-                          bg-primary
-                          {% elif jugador.jugador.media_descubrimiento < 90 and jugador.jugador.media_descubrimiento >= 80 %} 
-                          bg-success
-                          {% elif jugador.jugador.media_descubrimiento < 80 and jugador.jugador.media_descubrimiento >= 70  %}
-                          bg-info
-                          {% elif jugador.jugador.media_descubrimiento < 70 and jugador.jugador.media_descubrimiento >= 60  %}
-                          bg-warning
-                          {% elif jugador.jugador.media_descubrimiento <= 59  %}
-                          bg-danger
-                          {% endif %} text-wrap p-2">{{ jugador.jugador.media_descubrimiento }}</span>
+                      <span class="fw-semibold ms-2 text-dark">Valor de Mercado: <span class="fw-light">{{jugador.valor}}€</span></span>
+                      <span class="fw-semibold ms-2 me-1 text-dark">Global: </span> <span class="badge
+                                {% if jugador.media >= 90  %} 
+                                bg-primary
+                                {% elif jugador.media < 90 and jugador.media >= 80 %} 
+                                bg-success
+                                {% elif jugador.media < 80 and jugador.media >= 70  %}
+                                bg-info
+                                {% elif jugador.media < 70 and jugador.media >= 60  %}
+                                bg-warning
+                                {% elif jugador.media <= 59  %}
+                                bg-danger
+                                {% endif %} text-wrap p-2">{{ jugador.media }}</span>
                     </div>
                   </a>
             {%empty%}
@@ -139,7 +140,24 @@
         <form method="post" action="{% url 'agregar_jugador_ojeado' carrera.id %}">
           {% csrf_token %}
           {{ form.as_p }}
-          <div class="d-flex">
+
+          <label for="posiciones">Posiciones:</label>
+          <select name="posiciones" id="posiciones" multiple>
+            <option value="POR">POR</option>
+            <option value="LD">LD</option>
+            <option value="LI">LI</option>
+            <option value="DFC">DFC</option>
+            <option value="MCD">MCD</option>
+            <option value="MC">MC</option>
+            <option value="MI">MI</option>
+            <option value="MD">MD</option>
+            <option value="MCO">MCO</option>
+            <option value="SD">SD</option>
+            <option value="EI">EI</option>
+            <option value="ED">ED</option>
+            <option value="DC">DC</option>
+          </select>
+          <div class="d-flex mt-3">
             <button type="submit" class="btn btn-light ms-auto fw-semibold" style="color: #14539a;">Agregar Jugador</button>
           </div>
         </form>
@@ -161,15 +179,29 @@
           {% csrf_token %}
           {{tform.as_p}}
 
-            <select name="id_equipo" id="slect"  class="form-select mt-3 mb-3" required>
-                <option value="">Equipo de la Proxima Temporada</option>
-                {% for e in equipos %}
-                    <option value="{{e.id}}" {% if e.nombre == equipo_actual.nombre  %}selected{% endif %}>{{e.nombre}} | {{e.liga}}</option>
-                {% endfor %}
-            </select>
+          <select name="id_equipo" id="slect"  class="form-select mt-3 mb-3" required>
+            <option value="">Equipo de la Proxima Temporada</option>
+            {% for e in equipos %}
+              <option value="{{e.id}}" {% if e.nombre == equipo_actual.nombre  %}selected{% endif %}>{{e.nombre}} | {{e.liga}}</option>
+            {% endfor %}
+          </select>
+
+          <div class="list-group list-group-flush mb-3">
+            {% for jugador in  all_jugadores %}           
+                <div class="list-group-item p-1">
+                    <div class="d-flex align-items-center">
+                      <span class="fw-bolder ms-2 text-dark">{{jugador.posicion}}</span>
+                      <span class="fw-semibold ms-2 text-secondary">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>
+                      <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="30" height="20" class="ms-2 rounded-1">
+                      <input type="number" class="form-control ms-auto me-2" style="width: 20%;" id="valorJugador{{jugador.jugador.id}}" name="valorJugador{{jugador.jugador.id}}" placeholder="Valor" value="{{jugador.valor}}" required>
+                      <input type="number" class="form-control" style="width: 10%;" id="mediaJugador{{jugador.jugador.id}}" name="mediaJugador{{jugador.jugador.id}}" placeholder="Valor" value="{{jugador.media}}" required>
+                    </div>
+                </div>   
+            {% endfor %}
+        </div>
 
           <div class="d-flex">
-            <button type="submit" class="btn btn-light ms-auto fw-semibold" style="color: #14539a;">Aceptar</button>
+            <button type="submit" class="btn btn-light ms-auto fw-semibold" style="color: #14539a;">Siguiente Temporada</button>
           </div>
         </form>
       </div>
@@ -180,6 +212,7 @@
 
 {% block js %}
 <script>
+  new MultiSelectTag('posiciones');
     $(document).ready(function() {
         // Mostrar modal Pasar Temporada al hacer clic en el botón
         $('#pasarTemporadaBtn').click(function() {
@@ -198,7 +231,6 @@
         // Mostrar modal Agregar Jugador Ojeado al hacer clic en el botón
         $('#agregarJugadorBtn').click(function() {
           $('#agregarJugadorModal').modal('show');
-          $('.js-example-basic-multiple').select2();
         });
 
         $('#temporadaSelect').on('change', function() {
