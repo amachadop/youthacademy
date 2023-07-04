@@ -686,6 +686,7 @@ paises = [
     {"nombre": "Corea del Sur", "bandera": "corea_del_sur.png"},
     {"nombre": "Costa de Marfil", "bandera": "costa_de_marfil.png"},
     {"nombre": "Croacia", "bandera": "croacia.png"},
+    {"nombre": "Dinamarca", "bandera": "dinamarca.png"},
     {"nombre": "Ecuador", "bandera": "ecuador.png"},
     {"nombre": "Egipto", "bandera": "egipto.png"},
     {"nombre": "Escocia", "bandera": "escocia.png"},
@@ -732,8 +733,8 @@ def rellenar_equipos():
             equipo.save()
             
 def rellenar_paises():
-    if not Nacionalidad.objects.all().exists():
-        for pais in paises:
+    for pais in paises:
+        if not Nacionalidad.objects.filter(pais=pais['nombre']).exists(): 
             n = Nacionalidad(pais=pais['nombre'], bandera=pais['bandera'])
             n.save()
             

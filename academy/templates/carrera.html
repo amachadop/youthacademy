@@ -99,8 +99,12 @@
           {% csrf_token %}
           <select name="id_equipo" id="slect"  class="form-select mt-3 mb-3" required>
             <option value="">Equipo destino</option>
-            {% for e in equipos %}
-                <option value="{{e.id}}">{{e.nombre}} | {{e.liga}}</option>
+            {% for key, eq in equipos.items %}
+              <optgroup label="{{key}}">
+                {% for e in eq %}
+                  <option value="{{e.id}}">{{e.nombre}}</option>
+                {% endfor %}
+              </optgroup>
             {% endfor %}
         </select>
 
@@ -115,7 +119,7 @@
 
 <!-- Modal Estadisticas -->
 <div class="modal fade" id="estadisticasModal" tabindex="-1" role="dialog" aria-labelledby="estadisticasModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-fullscreen-sm-down" role="document">
     <div class="modal-content bg-light">
       <div class="modal-header border-0">
         <h5 class="modal-title text-secondary" id="estadisticasModalLabel"><span class="text-capitalize">{{carrera.nombre}}</span></h5>
@@ -129,8 +133,8 @@
 </div>
 
 <!-- Modal Agregar Jugador Ojeado -->
-<div class="modal fade" id="agregarJugadorModal" tabindex="-1" role="dialog" aria-labelledby="agregarJugadorModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+<div class="modal fade" id="agregarJugadorModal" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"  aria-labelledby="agregarJugadorModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-sm-down" role="document">
     <div class="modal-content bg-light">
       <div class="modal-header border-0">
         <h5 class="modal-title text-secondary" id="agregarJugadorModalLabel">Nuevo Jugador Ojeado</h5>
@@ -167,8 +171,8 @@
 </div>
 
 <!-- Modal Pasar Temporada -->
-<div class="modal fade" id="pasarTemporadaModal" tabindex="-1" role="dialog" aria-labelledby="pasarTemporadaModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+<div class="modal fade" id="pasarTemporadaModal" aria-labelledby="pasarTemporadaModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-sm-down" role="document">
     <div class="modal-content bg-light">
       <div class="modal-header border-0">
         <h5 class="modal-title text-secondary" id="pasarTemporadaModalLabel">Pasar Temporada</h5>
@@ -181,8 +185,12 @@
 
           <select name="id_equipo" id="slect"  class="form-select mt-3 mb-3" required>
             <option value="">Equipo de la Proxima Temporada</option>
-            {% for e in equipos %}
-              <option value="{{e.id}}" {% if e.nombre == equipo_actual.nombre  %}selected{% endif %}>{{e.nombre}} | {{e.liga}}</option>
+            {% for key, eq in equipos.items %}
+              <optgroup label="{{key}}">
+                {% for e in eq %}
+                  <option value="{{e.id}}" {% if e.nombre == equipo_actual.nombre  %}selected{% endif %}>{{e.nombre}}</option>
+                {% endfor %}
+              </optgroup>
             {% endfor %}
           </select>
 

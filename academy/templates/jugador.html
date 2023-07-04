@@ -87,7 +87,7 @@
 
 <!-- Modal Traspasar Jugador -->
 <div class="modal fade" id="traspasarJugadorModal" tabindex="-1" role="dialog" aria-labelledby="traspasarJugadorModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-fullscreen-sm-down" role="document">
     <div class="modal-content bg-light">
       <div class="modal-header border-0">
         <h5 class="modal-title text-secondary" id="traspasarJugadorModalLabel">Traspasar Jugador</h5>
@@ -98,8 +98,12 @@
           {% csrf_token %}
           <select name="id_equipo" id="slect"  class="form-select mt-3 mb-3" required>
             <option value="">Equipo destino</option>
-            {% for e in equipos %}
-                <option value="{{e.id}}">{{e.nombre}} | {{e.liga}}</option>
+            {% for key, eq in equipos.items %}
+              <optgroup label="{{key}}">
+                {% for e in eq %}
+                  <option value="{{e.id}}">{{e.nombre}}</option>
+                {% endfor %}
+              </optgroup>
             {% endfor %}
           </select>
           <div class="mb-3">

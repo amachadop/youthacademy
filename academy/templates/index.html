@@ -49,7 +49,7 @@
     
       <!-- Modal para crear una nueva carrera -->
       <div class="modal fade" id="crearCarreraModal" tabindex="-1" role="dialog" aria-labelledby="crearCarreraModalLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
+          <div class="modal-dialog " role="document">
           <div class="modal-content bg-light">
               <div class="modal-header border-0">
               <h5 class="modal-title text-secondary" id="crearCarreraModalLabel">Crear Nueva Carrera</h5>
@@ -64,8 +64,12 @@
                       {{ form.manager }}
                       <select name="id_equipo" class="form-select mt-3" required>
                           <option value="">Seleccionar equipo</option>
-                          {% for e in equipos %}
-                              <option value="{{e.id}}">{{e.nombre}} | {{e.liga}}</option>
+                          {% for key, eq in equipos.items %}
+                            <optgroup label="{{key}}">
+                              {% for e in eq %}
+                                <option value="{{e.id}}">{{e.nombre}}</option>
+                              {% endfor %}
+                            </optgroup>
                           {% endfor %}
                       </select>
                   </div>
