@@ -6,7 +6,7 @@
 
 {% block content %}
   {% if user.is_authenticated %}
-    <div class="container">
+    <div class="container-fluid">
       <div class="d-flex justify-content-center mt-3 mb-4">
         <button id="carreraBtn" type="button" class="btn btn-light text-center" data-toggle="modal" data-target="#crearCarreraModal">
           <div class="d-flex justify-content-center p-2">
@@ -20,9 +20,8 @@
         {% for carrera in carreras %}
               <div class="card bg-light border-0 mb-4 p-3">
                 <div class="d-flex align-items-center">
-                  <h3 class="fw-semibold text-capitalize">{{ carrera.nombre }}</h3>
-                  <a href="{% url 'carrera' carrera.id %}" class="btn btn-primary ms-auto"><span class="material-symbols-rounded">page_info</span></a>
-                  <button onclick="eliminar({{carrera.id}});" class="btn btn-danger ms-2"><span class="material-symbols-rounded">delete</span></button>
+                  <a href="{% url 'carrera' carrera.id %}" class="fw-semibold fs-3 text-decoration-none" style="color: #14539a;">{{carrera.nombre}}</a>
+                  <button onclick="eliminar({{carrera.id}});" class="btn btn-light fw-semibold ms-auto text-danger p-0"><span class="material-symbols-rounded fs-1">delete</span></button>
                 </div>
               </div>
 

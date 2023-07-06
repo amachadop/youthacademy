@@ -15,39 +15,76 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-9">
+
       <div class="container-fluid">
-        <div class="card mt-4 border-0 shadow p-3 p-md-4 mb-4">
-          <div class="row">
-            <div class="col-md-8">
-              <div class="d-flex align-items-center">
-                <img src="{% static 'img/escudo.png' %}" alt="" width="40" height="40">
-                <span class="fw-bold fs-4 ms-3 text-center">{{equipo_actual.nombre}} (Temporada {{temporada_actual.nombre}})</span>
-              </div>
-            </div>
-            <div class="col-4 mt-3 mt-md-0">
-              <div class="d-flex align-items-center">
-                <button id="agregarJugadorBtn" type="button" class="btn btn-primary ms-auto" data-toggle="modal" data-target="#agregarJugadorModal"><span class="material-symbols-rounded">settings_accessibility</span></button>
-                <button id="cambiarEquipoBtn" type="button" class="btn btn-danger ms-2" data-toggle="modal" data-target="#cambiarEquipoModal"><span class="material-symbols-rounded">magic_exchange</span></button>
-                <button id="estadisticasBtn" type="button" class="btn btn-secondary ms-2 d-lg-none" data-toggle="modal" data-target="#estadisticasModal"><span class="material-symbols-rounded">query_stats</span></button>
-                <a href="{% url 'listar_jugadores' carrera.id %}" class="btn btn-dark ms-2 d-lg-none"><span class="material-symbols-rounded">conditions</span></a>
-                <button id="pasarTemporadaBtn" type="button" class="btn btn-success ms-2" data-toggle="modal" data-target="#pasarTemporadaModal"><span class="material-symbols-rounded">start</span></button>
-              </div>
-            </div>
-          </div>
+
+        <div class="mt-4 p-3 p-md-4 mb-3 d-lg-flex align-items-center">
+          <img src="{% static 'img/escudo.png' %}" alt="" width="60" height="60">
+          <span class="fw-bold fs-1 ms-3" style="color: #14539a;">{{equipo_actual.nombre}}</span>
+          <br><br>
+          <button id="estadisticasBtn" type="button" class="btn btn-light ms-1 d-lg-none" style="color: #14539a;" data-toggle="modal" data-target="#estadisticasModal"><span class="material-symbols-rounded fw-bolder fs-2">query_stats</span></button>
+          <a href="{% url 'listar_jugadores' carrera.id %}" class="btn btn-light text-dark ms-1 d-lg-none"><span class="material-symbols-rounded fw-bolder fs-2">conditions</span></a>
+          <button id="agregarJugadorBtn" type="button" class="btn btn-light text-primary ms-1 ms-lg-auto " data-toggle="modal" data-target="#agregarJugadorModal"><span class="material-symbols-rounded fw-bolder fs-2">settings_accessibility</span></button>
+          <button id="cambiarEquipoBtn" type="button" class="btn btn-light text-danger ms-1" data-toggle="modal" data-target="#cambiarEquipoModal"><span class="material-symbols-rounded fw-bolder fs-2">magic_exchange</span></button>
+          <button id="pasarTemporadaBtn" type="button" class="btn btn-light text-success ms-1" data-toggle="modal" data-target="#pasarTemporadaModal"><span class="material-symbols-rounded fw-bolder fs-2">start</span></button>
         </div>
       
-        <div class="card border-0 shadow p-3 p-md-4 mb-5">
-          <h3 class="mb-4">Jugadores Ojeados:</h3>
-          <div class="list-group list-group-flush">
+        <div class="p-3 p-md-4 mb-5">
+          <h3 class="mb-5" style="color: #14539a;">Temporada {{temporada_actual.nombre}}</h3>
+          <div class="row  row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 d-lg-none">
             {% for jugador in jugadores_ojeados %}
-                <a href="{% url 'jugador' jugador.jugador.id %}" class="list-group-item list-group-item-action">
-                    <div class="d-lg-flex align-items-center">
+              <div class="col mb-3">
+                  <a href="{% url 'jugador' jugador.jugador.id %}" class="text-decoration-none">
+                    <div class="card p-3 bg-light shadow-sm border-0">
+                      <div class="d-flex justify-content-center mb-2">
+                        {% load static %}
+                        <img src="{% static 'img/avatar.png' %}" alt="" width="100" height="100">
+                      </div>
+                      <div class="d-flex align-items-center mb-2">
+                        <span class="fw-bolder ms-2 text-dark fs-5">{{jugador.posicion}}</span>
+                        <span class="ms-2 text-secondary text-capitalize">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>   
+                      </div>
+                      <div class="d-flex align-items-center mb-2">
+                        <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="35" height="25" class="ms-2 rounded-1">
+                        <span class="ms-2 text-secondary">{{jugador.jugador.nacionalidad.pais}}</span>
+                      </div>           
+                      <span class="fw-semibold ms-2 text-dark mb-2">Edad: <span class="text-secondary fw-light">{{jugador.edad}} años</span></span>
+                      <span span class="fw-semibold ms-2 text-dark mb-2">Valor: <span class="fw-light">{{jugador.valor}}€</span></span>
+                      <div class="d-flex">
+                        <span class="fw-semibold ms-2 me-1 text-dark">Global: </span> <span class="badge
+                                  {% if jugador.media >= 90  %} 
+                                  bg-primary
+                                  {% elif jugador.media < 90 and jugador.media >= 80 %} 
+                                  bg-success
+                                  {% elif jugador.media < 80 and jugador.media >= 70  %}
+                                  bg-info
+                                  {% elif jugador.media < 70 and jugador.media >= 60  %}
+                                  bg-warning
+                                  {% elif jugador.media <= 59  %}
+                                  bg-danger
+                                  {% endif %} text-wrap p-2">{{ jugador.media }}</span>
+                      </div>
+                    </div>
+                  </a>
+                
+              </div>
+            {%empty%}
+              <h5 class="text-center fw-light">Aun no se han descubierto jugadores en este equipo</h5>
+            {% endfor %}
+          </div>
+          <div class="list-group list-group-flush d-none d-lg-block">
+            {% for jugador in jugadores_ojeados %}
+                <a href="{% url 'jugador' jugador.jugador.id %}" class="list-group-item list-group-item-action bg-light">
+                    <div class="d-lg-flex align-items-center p-2">
                       {% load static %}
-                      <img src="{% static 'img/avatar.png' %}" alt="" width="25" height="25">
-                      <span class="fw-bolder ms-2 text-dark fs-5">{{jugador.posicion}}</span>
-                      <span class="fw-semibold ms-2 text-secondary fs-5">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>
-                      <span class="fw-semibold ms-2 text-secondary fs-5">({{jugador.edad}} años)</span>
-                      <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="30" height="20" class="ms-2 rounded-1">
+                      <img src="{% static 'img/avatar.png' %}" alt="" width="45" height="45">
+                      <span class="fw-bolder ms-2 text-dark fs-4">{{jugador.posicion}}</span>
+                      <span class="fw-semibold ms-2 text-secondary text-capitalize">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>
+                      <span class="fw-semibold ms-2 text-secondary">({{jugador.edad}} años)</span>
+                      <div class="d-flex align-items-center">
+                        <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="35" height="25" class="ms-2 rounded-1">
+                        <span class="ms-2 text-secondary">{{jugador.jugador.nacionalidad.pais}}</span>
+                      </div> 
                       <span class="fw-semibold ms-2 text-dark">Valor de Mercado: <span class="fw-light">{{jugador.valor}}€</span></span>
                       <span class="fw-semibold ms-2 me-1 text-dark">Global: </span> <span class="badge
                                 {% if jugador.media >= 90  %} 
@@ -76,7 +113,7 @@
       <div class="container-fluid">
 
         <div class="container-fluid">
-            <div class="card mt-4 border-0 shadow p-3">
+            <div class="mt-4 p-3">
               {% include 'contenedor_estadisticas.html' %}
             </div>
         </div>

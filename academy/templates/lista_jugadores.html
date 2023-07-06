@@ -8,10 +8,10 @@
     
 
     <div class="container">
-        <div class="card mt-4 border-0 shadow p-3 p-md-4 mb-4">
 
+        <div class="d-flex justify-content-center align-items-center mt-3 mb-3">
             <a href="{% url 'carrera' carrera.id %}" class="text-decoration-none fw-semibold fs-3 text-capitalize text-center mb-3 text-dark">{{carrera.nombre}}</a>
-
+        </div>    
                 <form class="mb-4" form method="post" name="formulario">
                     {% csrf_token %}
                     <div class="d-flex mb-2">
@@ -32,35 +32,76 @@
                     </select>
                 </form>
 
-                <div class="list-group list-group-flush">
-                    {% for jugador in  jugadores %}           
-                        <a href="{% url 'jugador' jugador.jugador.id %}" class="list-group-item list-group-item-action">
-                            <div class="d-lg-flex align-items-center">
-                                <img src="{% static 'img/avatar.png' %}" alt="" width="25" height="25">
+                <div class="row  row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 d-lg-none">
+                    {% for jugador in jugadores %}
+                      <div class="col mb-3">
+                          <a href="{% url 'jugador' jugador.jugador.id %}" class="text-decoration-none">
+                            <div class="card p-3 bg-light shadow-sm border-0">
+                              <div class="d-flex justify-content-center mb-2">
+                                {% load static %}
+                                <img src="{% static 'img/avatar.png' %}" alt="" width="100" height="100">
+                              </div>
+                              <div class="d-flex align-items-center mb-2">
                                 <span class="fw-bolder ms-2 text-dark fs-5">{{jugador.posicion}}</span>
-                                <span class="fw-semibold ms-2 text-secondary fs-5">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>
-                                <span class="fw-semibold ms-2 text-secondary fs-5">({{jugador.edad}} años)</span>
-                                <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="30" height="20" class="ms-2 rounded-1">
-                                <span class="fw-semibold ms-2 text-dark">Valor de Mercado: <span class="fw-light">{{jugador.valor}}€</span></span>
-                                <span class="fw-semibold ms-2 text-dark">Equipo Actual: <span class="fw-light">{{jugador.equipo.nombre}}</span></span>
-                                <span class="fw-semibold ms-2 me-1">Global: </span> <span class="badge
-                                    {% if jugador.media >= 90  %} 
-                                    bg-primary
-                                    {% elif jugador.media < 90 and jugador.media >= 80 %} 
-                                    bg-success
-                                    {% elif jugador.media < 80 and jugador.media >= 70  %}
-                                    bg-info
-                                    {% elif jugador.media < 70 and jugador.media >= 60  %}
-                                    bg-warning
-                                    {% elif jugador.media <= 59  %}
-                                    bg-danger
-                                    {% endif %} text-wrap p-2">{{ jugador.media }}</span>
+                                <span class="ms-2 text-secondary text-capitalize">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>   
+                              </div>
+                              <div class="d-flex align-items-center mb-2">
+                                <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="35" height="25" class="ms-2 rounded-1">
+                                <span class="ms-2 text-secondary">{{jugador.jugador.nacionalidad.pais}}</span>
+                              </div>           
+                              <span class="fw-semibold ms-2 text-dark mb-2">Edad: <span class="text-secondary fw-light">{{jugador.edad}} años</span></span>
+                              <span span class="fw-semibold ms-2 text-dark mb-2">Valor: <span class="fw-light">{{jugador.valor}}€</span></span>
+                              <div class="d-flex">
+                                <span class="fw-semibold ms-2 me-1 text-dark">Global: </span> <span class="badge
+                                          {% if jugador.media >= 90  %} 
+                                          bg-primary
+                                          {% elif jugador.media < 90 and jugador.media >= 80 %} 
+                                          bg-success
+                                          {% elif jugador.media < 80 and jugador.media >= 70  %}
+                                          bg-info
+                                          {% elif jugador.media < 70 and jugador.media >= 60  %}
+                                          bg-warning
+                                          {% elif jugador.media <= 59  %}
+                                          bg-danger
+                                          {% endif %} text-wrap p-2">{{ jugador.media }}</span>
+                              </div>
                             </div>
-                        </a>   
+                          </a>
+                        
+                      </div>
+                    {% endfor %}
+                </div>
+                <div class="list-group list-group-flush d-none d-lg-block">
+                    {% for jugador in jugadores %}
+                        <a href="{% url 'jugador' jugador.jugador.id %}" class="list-group-item list-group-item-action bg-light">
+                            <div class="d-lg-flex align-items-center p-2">
+                              {% load static %}
+                              <img src="{% static 'img/avatar.png' %}" alt="" width="45" height="45">
+                              <span class="fw-bolder ms-2 text-dark fs-4">{{jugador.posicion}}</span>
+                              <span class="fw-semibold ms-2 text-secondary text-capitalize">{{jugador.jugador.nombre}} {{jugador.jugador.apellido}}</span>
+                              <span class="fw-semibold ms-2 text-secondary">({{jugador.edad}} años)</span>
+                              <div class="d-flex align-items-center">
+                                <img src="{% static 'img/' %}{{jugador.jugador.nacionalidad.bandera}}" alt="" width="35" height="25" class="ms-2 rounded-1">
+                                <span class="ms-2 text-secondary">{{jugador.jugador.nacionalidad.pais}}</span>
+                              </div> 
+                              <span class="fw-semibold ms-2 text-dark">Valor de Mercado: <span class="fw-light">{{jugador.valor}}€</span></span>
+                              <span class="fw-semibold ms-2 me-1 text-dark">Global: </span> <span class="badge
+                                        {% if jugador.media >= 90  %} 
+                                        bg-primary
+                                        {% elif jugador.media < 90 and jugador.media >= 80 %} 
+                                        bg-success
+                                        {% elif jugador.media < 80 and jugador.media >= 70  %}
+                                        bg-info
+                                        {% elif jugador.media < 70 and jugador.media >= 60  %}
+                                        bg-warning
+                                        {% elif jugador.media <= 59  %}
+                                        bg-danger
+                                        {% endif %} text-wrap p-2">{{ jugador.media }}</span>
+                            </div>
+                          </a>
                     {% endfor %}
                 </div>
 
-        </div>
     </div>
 
 {% endblock content %}
